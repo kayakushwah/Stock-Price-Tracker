@@ -1,0 +1,18 @@
+{
+  "name": "it_stock_tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cd IT_Stock_Tracker && npm run dev",
+    "install-all": "cd IT_Stock_Tracker && npm run install-all",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

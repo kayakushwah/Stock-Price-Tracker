@@ -1,0 +1,190 @@
+/* ─── Google Font Import ─────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+
+/* ─── CSS Variables / Design Tokens ─────────────────── */
+:root {
+  /* Default Light Mode (Indigo) */
+  --sidebar-bg: #1e293b;
+  --sidebar-border: rgba(0,0,0,0.08);
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(0, 0, 0, 0.08);
+  --border-color: rgba(0, 0, 0, 0.08);
+  --bg-main: #f0f4f8;
+  --bg-base: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --up-color: #059669;
+  --down-color: #e11d48;
+  
+  --accent-primary: #4f46e5;
+  --accent-secondary: #818cf8;
+  --accent-glow: rgba(79, 70, 229, 0.35);
+  
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --radius-card: 16px;
+  --radius-sm: 10px;
+}
+
+html.dark {
+  --sidebar-bg: #090c15;
+  --sidebar-border: rgba(255,255,255,0.06);
+  --card-bg: rgba(15, 23, 42, 0.7);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --bg-main: #0b0f19;
+  --bg-base: #0f172a;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --up-color: #0ecb81;
+  --down-color: #f6465d;
+}
+
+/* Color Palettes — chosen to complement the dark sidebar */
+html.theme-emerald {
+  --accent-primary: #10b981;
+  --accent-secondary: #34d399;
+  --accent-glow: rgba(16, 185, 129, 0.3);
+}
+
+html.theme-violet {
+  --accent-primary: #7c3aed;
+  --accent-secondary: #a78bfa;
+  --accent-glow: rgba(124, 58, 237, 0.3);
+}
+
+html.theme-cyan {
+  --accent-primary: #0891b2;
+  --accent-secondary: #22d3ee;
+  --accent-glow: rgba(8, 145, 178, 0.3);
+}
+
+html.theme-rose {
+  --accent-primary: #e11d48;
+  --accent-secondary: #fb7185;
+  --accent-glow: rgba(225, 29, 72, 0.3);
+}
+
+html.theme-ocean {
+  --accent-primary: #0284c7;
+  --accent-secondary: #38bdf8;
+  --accent-glow: rgba(2, 132, 199, 0.3);
+}
+
+/* Glassmorphism Utilities */
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-card);
+}
+
+/* ─── Base Styles ────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-main);
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--text-primary);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.22); }
+
+/* ─── GlowingEffect Required Styles ─────────────────── */
+.glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.glow::after {
+  content: "";
+  border-radius: inherit;
+  position: absolute;
+  inset: calc(-1 * var(--glowingeffect-border-width, 1px));
+  border: var(--glowingeffect-border-width, 1px) solid transparent;
+  background: var(--gradient);
+  background-attachment: fixed;
+  opacity: var(--active, 0);
+  transition: opacity 300ms;
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+  mask-image: linear-gradient(#0000, #0000),
+    conic-gradient(
+      from calc((var(--start) - var(--spread)) * 1deg),
+      #00000000 0deg,
+      #fff,
+      #00000000 calc(var(--spread) * 2deg)
+    );
+}
+
+/* ─── Market Ticker Animation ────────────────────────── */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  animation: ticker-scroll 30s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+/* ─── Shimmer Loading Animation ─────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, var(--border-color, rgba(0,0,0,0.06)) 25%, var(--card-border, rgba(0,0,0,0.04)) 50%, var(--border-color, rgba(0,0,0,0.06)) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── Fade-in Animation ──────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+/* ─── Card Hover ─────────────────────────────────────── */
+.stock-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stock-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* ─── Profit / Loss Color Utilities ─────────────────── */
+.text-profit { color: var(--up-color); }
+.text-loss   { color: var(--down-color); }
+.bg-profit   { background-color: rgba(14, 203, 129, 0.1); }
+.bg-loss     { background-color: rgba(246, 70, 93, 0.1); }
