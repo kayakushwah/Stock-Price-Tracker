@@ -82,7 +82,7 @@ const PriceChart = ({ stocks, selectedStock, onSelectStock }) => {
   }));
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: 'var(--shadow-card)' }}>
+    <div className="glass-card rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
       {/* Stock tabs */}
       {stocks?.length > 0 && (
         <div className="flex gap-2 px-5 pt-5 pb-0 overflow-x-auto">
@@ -92,8 +92,8 @@ const PriceChart = ({ stocks, selectedStock, onSelectStock }) => {
               onClick={() => onSelectStock(s)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 selectedStock.symbol === s.symbol
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-300/40'
-                  : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-md shadow-[var(--accent-glow)]/40'
+                  : 'bg-white/5 text-[var(--text-secondary)] hover:bg-white/10'
               }`}
             >
               {s.symbol}
@@ -106,9 +106,9 @@ const PriceChart = ({ stocks, selectedStock, onSelectStock }) => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
           <div>
-            <p className="text-xs text-slate-400 font-medium mb-1">{selectedStock.symbol}</p>
+            <p className="text-xs text-[var(--text-secondary)] font-medium mb-1 uppercase tracking-widest">{selectedStock.symbol}</p>
             <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-extrabold text-slate-900">
+              <span className="text-3xl font-extrabold text-[var(--text-primary)]">
                 ₹{(selectedStock.price ?? 0).toFixed(2)}
               </span>
               <span className={`text-sm font-bold flex items-center gap-1 ${isPositive ? 'text-profit' : 'text-loss'}`}>
@@ -127,25 +127,25 @@ const PriceChart = ({ stocks, selectedStock, onSelectStock }) => {
             {/* Stats */}
             <div className="flex gap-4 text-right text-xs">
               <div>
-                <p className="text-slate-400 uppercase tracking-wider font-semibold mb-0.5">High</p>
-                <p className="font-bold text-emerald-600">₹{(selectedStock.high ?? 0).toFixed(2)}</p>
+                <p className="text-[var(--text-muted)] uppercase tracking-wider font-semibold mb-0.5">High</p>
+                <p className="font-bold text-emerald-400">₹{(selectedStock.high ?? 0).toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-slate-400 uppercase tracking-wider font-semibold mb-0.5">Low</p>
-                <p className="font-bold text-rose-500">₹{(selectedStock.low ?? 0).toFixed(2)}</p>
+                <p className="text-[var(--text-muted)] uppercase tracking-wider font-semibold mb-0.5">Low</p>
+                <p className="font-bold text-rose-400">₹{(selectedStock.low ?? 0).toFixed(2)}</p>
               </div>
             </div>
 
             {/* Period selector */}
-            <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+            <div className="flex gap-1 bg-white/5 rounded-lg p-1 border border-white/10">
               {PERIODS.map(p => (
                 <button
                   key={p}
                   onClick={() => setPeriod(p)}
                   className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
                     period === p
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-700'
+                      ? 'bg-[var(--accent-primary)] text-white shadow-sm'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   {p}
@@ -158,10 +158,10 @@ const PriceChart = ({ stocks, selectedStock, onSelectStock }) => {
         {/* Chart */}
         {loading ? (
           <div className="h-52 flex items-center justify-center">
-            <RefreshCw size={22} className="animate-spin text-indigo-400" />
+            <RefreshCw size={22} className="animate-spin text-[var(--accent-primary)]" />
           </div>
         ) : error ? (
-          <div className="h-52 flex items-center justify-center text-sm text-slate-400">{error}</div>
+          <div className="h-52 flex items-center justify-center text-sm text-[var(--text-muted)]">{error}</div>
         ) : (
           <>
             {/* Price chart */}
@@ -173,11 +173,11 @@ const PriceChart = ({ stocks, selectedStock, onSelectStock }) => {
                     <stop offset="100%" stopColor={strokeColor} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="time" axisLine={false} tickLine={false}
-                  tick={{ fill: '#94a3b8', fontSize: 10 }} interval="preserveStartEnd" dy={8} />
+                  tick={{ fill: 'var(--text-muted)', fontSize: 10 }} interval="preserveStartEnd" dy={8} />
                 <YAxis domain={['auto', 'auto']} axisLine={false} tickLine={false}
-                  tick={{ fill: '#94a3b8', fontSize: 10 }}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
                   tickFormatter={v => `₹${v.toFixed(0)}`} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="price" stroke={strokeColor} strokeWidth={2.5}
@@ -188,7 +188,7 @@ const PriceChart = ({ stocks, selectedStock, onSelectStock }) => {
 
             {/* Volume bar chart */}
             <div className="mt-2">
-              <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
+              <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
                 <BarChart2 size={10} /> Volume
               </p>
               <ResponsiveContainer width="100%" height={40}>
@@ -202,20 +202,20 @@ const PriceChart = ({ stocks, selectedStock, onSelectStock }) => {
 
             {/* OHLC Table */}
             {historyData.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-2">
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider mb-2">
                   Latest Session OHLC
                 </p>
                 <div className="grid grid-cols-4 gap-3">
                   {[
                     { label: 'Open', val: historyData[historyData.length - 1]?.open },
-                    { label: 'High', val: historyData[historyData.length - 1]?.high, clr: 'text-emerald-600' },
-                    { label: 'Low',  val: historyData[historyData.length - 1]?.low,  clr: 'text-rose-500'  },
+                    { label: 'High', val: historyData[historyData.length - 1]?.high, clr: 'text-emerald-400' },
+                    { label: 'Low',  val: historyData[historyData.length - 1]?.low,  clr: 'text-rose-400'  },
                     { label: 'Close',val: historyData[historyData.length - 1]?.close },
                   ].map(({ label, val, clr }) => (
-                    <div key={label} className="bg-slate-50 rounded-lg px-3 py-2">
-                      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{label}</p>
-                      <p className={`text-sm font-extrabold ${clr ?? 'text-slate-800'}`}>
+                    <div key={label} className="bg-white/5 rounded-lg px-3 py-2 border border-white/5">
+                      <p className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider">{label}</p>
+                      <p className={`text-sm font-extrabold ${clr ?? 'text-[var(--text-primary)]'}`}>
                         ₹{(val ?? 0).toFixed(2)}
                       </p>
                     </div>

@@ -2,20 +2,16 @@ const axios = require('axios');
 const StockHistory = require('../models/Stock');
 const User = require('../models/User');
 
-const IT_STOCKS = ['TCS.BSE', 'INFY.BSE', 'WIT', 'HCLTECH.BSE', 'TECHM.BSE'];
+const IT_STOCKS = ['TCS.BSE', 'INFY.BSE', 'WIPRO.BSE', 'HCLTECH.BSE', 'TECHM.BSE'];
 
 const MOCK_PRICES = {
-  'TCS.BSE':    { price: 3782.50, high: 3820.00, low: 3751.00, changePercent: -0.54 },
-  'INFY.BSE':   { price: 1732.80, high: 1758.40, low: 1718.60, changePercent:  0.32 },
-  'WIT':        { price: 6.24,    high: 6.38,    low: 6.19,    changePercent:  1.14 },
-  'HCLTECH.BSE':{ price: 1621.35, high: 1648.00, low: 1608.75, changePercent:  1.02 },
-  'TECHM.BSE':  { price: 1342.65, high: 1368.90, low: 1330.20, changePercent: -0.78 },
-  'AAPL':       { price: 185.50,  high: 187.20, low: 183.90, changePercent:  1.25 },
-  'MSFT':       { price: 405.20,  high: 408.00, low: 401.50, changePercent:  0.85 },
-  'GOOGL':      { price: 145.80,  high: 147.10, low: 144.20, changePercent: -0.30 },
-  'AMZN':       { price: 178.40,  high: 180.50, low: 176.90, changePercent:  2.10 },
-  'NVDA':       { price: 890.20,  high: 905.00, low: 885.50, changePercent:  3.45 },
-  'TSLA':       { price: 195.30,  high: 198.50, low: 192.10, changePercent: -1.20 },
+  'TCS.BSE':    { price: 3954.20, high: 4012.00, low: 3920.00, changePercent: -0.45 },
+  'INFY.BSE':   { price: 1612.45, high: 1635.00, low: 1598.00, changePercent:  1.12 },
+  'WIPRO.BSE':  { price: 492.30,  high: 501.40,  low: 485.60,  changePercent: -0.23 },
+  'HCLTECH.BSE':{ price: 1584.15, high: 1605.00, low: 1568.75, changePercent:  0.84 },
+  'TECHM.BSE':  { price: 1248.65, high: 1272.90, low: 1230.20, changePercent: -1.15 },
+  'LTIM.BSE':   { price: 5245.00, high: 5310.00, low: 5180.00, changePercent:  0.55 },
+  'COFORGE.BSE':{ price: 6120.00, high: 6250.00, low: 6080.00, changePercent:  2.15 },
   'RELIANCE.BSE':{ price: 2950.40, high: 2980.00, low: 2930.50, changePercent:  0.45 },
   'SBIN.BSE':   { price: 760.20,  high: 768.50, low: 755.10, changePercent:  1.15 },
   'HDFCBANK.BSE':{ price: 1435.60, high: 1445.00, low: 1425.20, changePercent: -0.65 }
@@ -44,7 +40,7 @@ const MOCK_SEARCH_RESULTS = [
 const SECTORS_DATA = [
   { 
     name: 'IT', change: -0.34, mktCap: '₹18.4L Cr', 
-    stocks: ['TCS.BSE', 'INFY.BSE', 'WIT', 'HCLTECH.BSE', 'TECHM.BSE', 'LTIM.BSE', 'PERSISTENT.BSE', 'MPHASIS.BSE', 'KPITTECH.BSE', 'COFORGE.BSE', 'OFSS.BSE', 'HEXAWARE.BSE'] 
+    stocks: ['TCS.BSE', 'INFY.BSE', 'WIPRO.BSE', 'HCLTECH.BSE', 'TECHM.BSE', 'LTIM.BSE', 'PERSISTENT.BSE', 'MPHASIS.BSE', 'KPITTECH.BSE', 'COFORGE.BSE', 'OFSS.BSE', 'HEXAWARE.BSE'] 
   },
   { 
     name: 'Banking', change: 0.45, mktCap: '₹32.1L Cr', 

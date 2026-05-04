@@ -23,13 +23,13 @@ const BREADTH_TOTAL = BREADTH.advances + BREADTH.declines + BREADTH.unchanged;
 const FEAR_GREED = 65;
 
 
-const StatBadge = ({ label, value, sub, up, icon: Icon, tip }) => (
+const StatBadge = ({ label, value, sub, up, icon: Icon, tip, align }) => (
   <div className="glass-card rounded-2xl p-5 overflow-hidden transition-transform hover:scale-[1.02] group relative">
     <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[var(--accent-glow)] opacity-0 group-hover:opacity-20 transition-opacity" />
     <div className="relative z-10">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-widest flex items-center gap-1">
-          {label}{tip && <HelpTip topic={tip} />}
+          {label}{tip && <HelpTip topic={tip} align={align} />}
         </p>
         {Icon && <Icon size={15} className={up ? 'text-profit' : 'text-loss'} />}
       </div>
@@ -81,7 +81,7 @@ export default function MarketTrend() {
     setLoading(true);
     try {
       const [stocksRes, sectorsRes] = await Promise.all([
-        api.get('/stocks?symbols=TCS.BSE,INFY.BSE,WIT,HCLTECH.BSE,TECHM.BSE,LTIM.BSE,PERSISTENT.BSE,MPHASIS.BSE,KPITTECH.BSE,COFORGE.BSE'),
+        api.get('/stocks?symbols=TCS.BSE,INFY.BSE,WIPRO.BSE,HCLTECH.BSE,TECHM.BSE,LTIM.BSE,PERSISTENT.BSE,MPHASIS.BSE,KPITTECH.BSE,COFORGE.BSE'),
         api.get('/stocks/sectors')
       ]);
       setStocks(stocksRes.data ?? []);
@@ -134,8 +134,8 @@ export default function MarketTrend() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatBadge label="SENSEX" value="73,247" sub="+312 (+0.43%)" up={true} icon={TrendingUp} tip="sensex" />
         <StatBadge label="NIFTY 50" value="22,197" sub="+91 (+0.41%)" up={true} icon={TrendingUp} tip="nifty" />
-        <StatBadge label="NIFTY IT" value="36,841" sub="-124 (-0.34%)" up={false} icon={TrendingDown} tip="nifty it" />
-        <StatBadge label="INDIA VIX" value="14.23" sub="-3.07%" up={true} icon={Zap} tip="vix" />
+        <StatBadge label="NIFTY IT" value="36,841" sub="-124 (-0.34%)" up={false} icon={TrendingDown} tip="nifty it" align="left" />
+        <StatBadge label="INDIA VIX" value="14.23" sub="-3.07%" up={true} icon={Zap} tip="vix" align="left" />
       </div>
 
       {/* Market Breadth + Fear/Greed */}
@@ -167,7 +167,7 @@ export default function MarketTrend() {
 
         <div className="glass-card rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden group" style={{ border: '1px solid var(--card-border)' }}>
           <p className="text-sm font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-            Sentiment <HelpTip topic="bull_bear" />
+            Sentiment <HelpTip topic="bull_bear" align="left" />
           </p>
           <div className="relative w-28 h-28">
             <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90 drop-shadow-lg">
@@ -242,7 +242,7 @@ export default function MarketTrend() {
           <p className="text-sm font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
             <TrendingDown size={16} className="text-rose-500" />
             Top Losers
-            <HelpTip topic="top_losers" />
+            <HelpTip topic="top_losers" align="left" />
             <span className="text-[10px] text-[var(--text-muted)] font-normal ml-auto">IT Stocks</span>
           </p>
           {loading ? (

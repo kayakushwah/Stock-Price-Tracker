@@ -4,20 +4,18 @@ import { useAuth } from '../hooks/useAuth';
 import { LineChart, Menu, X, TrendingUp, Activity, Star, Search, Loader, ChevronRight } from 'lucide-react';
 import api from '../api/axios';
 
-// 12 stock-market themed avatars
+// Map of avatar IDs to their sticker image paths
 const AVATAR_MAP = {
-  bull: '🐂',
-  bear: '🐻',
-  chart: '📈',
-  diamond: '💎',
-  moneybag: '💰',
-  suit: '👔',
-  rocket: '🚀',
-  magnify: '🔍',
-  bank: '🏦',
-  oracle: '🔮',
-  lightning: '⚡',
-  trophy: '🏆',
+  bull:       '/assets/avatars/bull.png',
+  bear:       '/assets/avatars/bear.png',
+  trader:     '/assets/avatars/trader.png',
+  investor:   '/assets/avatars/investor.png',
+  analyst:    '/assets/avatars/analyst.png',
+  penny:      '/assets/avatars/penny.png',
+  quant:      '/assets/avatars/quant.png',
+  crypto:     '/assets/avatars/crypto.png',
+  dividend:   '/assets/avatars/dividend.png',
+  volatility: '/assets/avatars/volatility.png',
 };
 
 const Sidebar = () => {
@@ -121,8 +119,9 @@ const Sidebar = () => {
             className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left group transition-all hover:bg-white/5"
           >
             {/* Avatar */}
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-2xl shadow-md flex-shrink-0" style={{ background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}>
-              {AVATAR_MAP[avatar] || '🐂'}
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 overflow-hidden p-0.5" 
+              style={{ background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}>
+              <img src={AVATAR_MAP[avatar] || AVATAR_MAP.bull} alt="avatar" className="w-full h-full object-cover rounded-lg" />
             </div>
             {/* User info */}
             <div className="flex-1 min-w-0">

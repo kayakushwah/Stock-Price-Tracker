@@ -2,31 +2,39 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { useMode } from '../hooks/useMode';
-import { Settings, Moon, Sun, CheckCircle, BookOpen, Zap, Bell, Shield } from 'lucide-react';
+import { 
+  Settings, Moon, Sun, CheckCircle, BookOpen, Zap, Bell, Shield, 
+  TrendingUp, TrendingDown, Activity, Star, Diamond, Briefcase, 
+  Rocket, Search, Landmark, Eye, ZapOff, Trophy 
+} from 'lucide-react';
 
-// 12 Stock-market themed avatars
+// 10 High-quality Stock-market themed avatar stickers
 const AVATARS = [
-  { id: 'bull',     emoji: '🐂', label: 'Bull Trader'    },
-  { id: 'bear',     emoji: '🐻', label: 'Bear Investor'  },
-  { id: 'chart',    emoji: '📈', label: 'Chart Wizard'   },
-  { id: 'diamond',  emoji: '💎', label: 'Diamond Hands'  },
-  { id: 'moneybag', emoji: '💰', label: 'Money Magnet'   },
-  { id: 'suit',     emoji: '👔', label: 'Wall St. Suit'  },
-  { id: 'rocket',   emoji: '🚀', label: 'Moon Chaser'    },
-  { id: 'magnify',  emoji: '🔍', label: 'Stock Analyst'  },
-  { id: 'bank',     emoji: '🏦', label: 'The Banker'     },
-  { id: 'oracle',   emoji: '🔮', label: 'Market Oracle'  },
-  { id: 'lightning',emoji: '⚡',     label: 'Quick Trader'   },
-  { id: 'trophy',   emoji: '🏆', label: 'Top Performer'  },
+  { id: 'bull',       img: '/assets/avatars/bull.png',       label: 'The Bullish'     },
+  { id: 'bear',       img: '/assets/avatars/bear.png',       label: 'The Bearish'     },
+  { id: 'trader',     img: '/assets/avatars/trader.png',     label: 'Day Trader'      },
+  { id: 'investor',   img: '/assets/avatars/investor.png',   label: 'Long Investor'   },
+  { id: 'analyst',    img: '/assets/avatars/analyst.png',    label: 'Chart Analyst'   },
+  { id: 'penny',      img: '/assets/avatars/penny.png',      label: 'Penny Chaser'    },
+  { id: 'quant',      img: '/assets/avatars/quant.png',      label: 'Quant Master'    },
+  { id: 'crypto',     img: '/assets/avatars/crypto.png',     label: 'Crypto King'     },
+  { id: 'dividend',   img: '/assets/avatars/dividend.png',   label: 'Dividend Grower' },
+  { id: 'volatility', img: '/assets/avatars/volatility.png', label: 'Volatility Pro'  },
 ];
 
 const PALETTES = [
-  { id: 'indigo', name: 'Indigo', color: '#4f46e5', desc: 'Classic deep blue' },
+  { id: 'indigo',  name: 'Indigo',  color: '#4f46e5', desc: 'Classic deep blue' },
   { id: 'emerald', name: 'Emerald', color: '#10b981', desc: 'Fresh market green' },
-  { id: 'violet', name: 'Violet', color: '#7c3aed', desc: 'Regal purple' },
-  { id: 'cyan', name: 'Cyan', color: '#0891b2', desc: 'Cool ocean blue' },
-  { id: 'rose', name: 'Rose', color: '#e11d48', desc: 'Bold & energetic' },
-  { id: 'ocean', name: 'Ocean', color: '#0284c7', desc: 'Deep sea depths' },
+  { id: 'violet',  name: 'Violet',  color: '#7c3aed', desc: 'Regal purple' },
+  { id: 'cyan',    name: 'Cyan',    color: '#0891b2', desc: 'Cool ocean blue' },
+  { id: 'rose',    name: 'Rose',    color: '#e11d48', desc: 'Bold & energetic' },
+  { id: 'ocean',   name: 'Ocean',   color: '#0284c7', desc: 'Deep sea depths' },
+  { id: 'amber',   name: 'Amber',   color: '#f59e0b', desc: 'Warm golden yellow' },
+  { id: 'orange',  name: 'Orange',  color: '#f97316', desc: 'Vibrant & active' },
+  { id: 'fuchsia', name: 'Fuchsia', color: '#d946ef', desc: 'Bright & electric' },
+  { id: 'slate',   name: 'Slate',   color: '#64748b', desc: 'Professional gray' },
+  { id: 'teal',    name: 'Teal',    color: '#14b8a6', desc: 'Balanced & calm' },
+  { id: 'lime',    name: 'Lime',    color: '#84cc16', desc: 'High energy green' },
 ];
 
 export default function Profile() {
@@ -56,6 +64,7 @@ export default function Profile() {
   };
 
   const currentAvatar = AVATARS.find(a => a.id === selectedAvatar) || AVATARS[0];
+  const AvatarIcon = currentAvatar.icon;
 
   return (
     <div className="space-y-6 fade-in-up pb-8 max-w-4xl mx-auto">
@@ -78,11 +87,11 @@ export default function Profile() {
 
             {/* Avatar display */}
             <div className="relative z-10 mb-4">
-              <div className="w-24 h-24 mx-auto rounded-full flex items-center justify-center shadow-xl shadow-[var(--accent-glow)] text-5xl mb-2"
+              <div className="w-28 h-28 mx-auto rounded-full flex items-center justify-center shadow-xl shadow-[var(--accent-glow)] mb-3 p-1 overflow-hidden"
                 style={{ background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}>
-                {currentAvatar.emoji}
+                <img src={currentAvatar.img} alt={currentAvatar.label} className="w-full h-full object-cover rounded-full" />
               </div>
-              <span className="text-xs font-bold text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-3 py-1 rounded-full">{currentAvatar.label}</span>
+              <span className="text-xs font-black text-[var(--accent-primary)] bg-[var(--accent-primary)]/10 px-3 py-1 rounded-full uppercase tracking-wider">{currentAvatar.label}</span>
             </div>
 
             <h2 className="text-base font-black text-[var(--text-primary)] relative z-10 mb-0.5">{user?.email?.split('@')[0]}</h2>
@@ -90,7 +99,7 @@ export default function Profile() {
 
             {/* Mode Badge */}
             <div className="flex items-center justify-center gap-2 mb-5 relative z-10">
-              <span className={`text-xs font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 ${isBeginnerMode ? 'bg-emerald-500/15 text-emerald-400' : 'bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]'}`}>
+              <span className="text-xs font-black px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] border border-[var(--accent-primary)]/20">
                 {isBeginnerMode ? <BookOpen size={12} /> : <Zap size={12} />}
                 {isBeginnerMode ? 'Beginner Mode' : 'Pro Mode'}
               </span>
@@ -110,8 +119,8 @@ export default function Profile() {
 
           {/* Appearance */}
           <div className="glass-card rounded-3xl p-6" style={{ border: '1px solid var(--card-border)' }}>
-            <h3 className="text-base font-black text-[var(--text-primary)] mb-5 flex items-center gap-2">
-              <span className="text-xl">🎨</span> Appearance
+            <h3 className="text-base font-black text-[var(--text-primary)] mb-5 flex items-center gap-2 uppercase tracking-wider italic">
+              Appearance
             </h3>
 
             {/* Light / Dark Mode */}
@@ -159,44 +168,46 @@ export default function Profile() {
 
           {/* Avatar Picker */}
           <div className="glass-card rounded-3xl p-6" style={{ border: '1px solid var(--card-border)' }}>
-            <h3 className="text-base font-black text-[var(--text-primary)] mb-5 flex items-center gap-2">
-              <span className="text-xl">🎭</span> Choose Your Avatar
+            <h3 className="text-base font-black text-[var(--text-primary)] mb-5 flex items-center gap-2 uppercase tracking-wider italic">
+              Choose Your Avatar
             </h3>
-            <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
-              {AVATARS.map(av => (
-                <button key={av.id} onClick={() => handleAvatarSelect(av.id)}
-                  title={av.label}
-                  className={`w-full aspect-square rounded-2xl text-3xl flex items-center justify-center transition-all hover:scale-110 ${selectedAvatar === av.id ? 'ring-2 ring-[var(--accent-primary)] shadow-lg shadow-[var(--accent-glow)] scale-110' : 'hover:ring-1 hover:ring-[var(--accent-primary)]/50'}`}
-                  style={{ background: selectedAvatar === av.id ? 'var(--accent-primary)' : 'var(--bg-base)', border: '1px solid var(--card-border)' }}
-                >
-                  {av.emoji}
-                </button>
-              ))}
+            <div className="grid grid-cols-5 gap-3">
+              {AVATARS.map(av => {
+                const isSelected = selectedAvatar === av.id;
+                return (
+                  <button key={av.id} onClick={() => handleAvatarSelect(av.id)}
+                    title={av.label}
+                    className={`relative w-full aspect-square rounded-2xl overflow-hidden transition-all hover:scale-110 ${isSelected ? 'ring-2 ring-[var(--accent-primary)] shadow-lg shadow-[var(--accent-glow)] scale-110' : 'opacity-60 hover:opacity-100'}`}
+                    style={{ background: isSelected ? 'var(--accent-primary)' : 'var(--bg-base)', border: '1px solid var(--card-border)' }}
+                  >
+                    <img src={av.img} alt={av.label} className="w-full h-full object-cover" />
+                  </button>
+                );
+              })}
             </div>
             <p className="text-xs text-[var(--text-muted)] font-semibold mt-3 text-center">Selected: {currentAvatar.label}</p>
           </div>
 
           {/* App Mode */}
           <div className="glass-card rounded-3xl p-6" style={{ border: '1px solid var(--card-border)' }}>
-            <h3 className="text-base font-black text-[var(--text-primary)] mb-2 flex items-center gap-2">
-              {isBeginnerMode ? <BookOpen size={18} className="text-emerald-400" /> : <Zap size={18} className="text-[var(--accent-primary)]" />}
+            <h3 className="text-base font-black text-[var(--text-primary)] mb-2 flex items-center gap-2 italic uppercase tracking-wider">
               App Mode
             </h3>
             <p className="text-xs text-[var(--text-secondary)] mb-5 font-medium">
               {isBeginnerMode
-                ? '🟢 Beginner Mode — educational tips, bulb icons, and Stock Market 101 are visible.'
-                : '⚡ Pro Mode — a clean interface without educational overlays.'}
+                ? 'Beginner Mode — educational tips, bulb icons, and Stock Market 101 are visible.'
+                : 'Pro Mode — a clean interface without educational overlays.'}
             </p>
             <div className="flex rounded-2xl p-1 w-fit" style={{ background: 'var(--sidebar-border)' }}>
               {[
-                { val: true, label: '📚 Beginner', desc: 'Tips & 101' },
-                { val: false, label: '⚡ Pro', desc: 'Clean & fast' },
-              ].map(({ val, label, desc }) => (
+                { val: true, label: 'Beginner', desc: 'Tips & 101', icon: BookOpen },
+                { val: false, label: 'Pro', desc: 'Clean & fast', icon: Zap },
+              ].map(({ val, label, desc, icon: Icon }) => (
                 <button key={String(val)} onClick={() => isBeginnerMode !== val && toggleAppMode()}
-                  className={`flex flex-col items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${isBeginnerMode === val ? 'text-[var(--text-primary)] shadow-md' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-                  style={isBeginnerMode === val ? { background: 'var(--card-bg)' } : {}}
+                  className={`flex flex-col items-center px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${isBeginnerMode === val ? 'text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                  style={isBeginnerMode === val ? { background: 'var(--accent-primary)', boxShadow: '0 4px 12px var(--accent-glow)' } : {}}
                 >
-                  <span>{label}</span>
+                  <span className="flex items-center gap-2"><Icon size={14} /> {label}</span>
                   <span className="text-[10px] font-normal text-[var(--text-muted)]">{desc}</span>
                 </button>
               ))}
@@ -205,8 +216,8 @@ export default function Profile() {
 
           {/* Preferences (functional) */}
           <div className="glass-card rounded-3xl p-6" style={{ border: '1px solid var(--card-border)' }}>
-            <h3 className="text-base font-black text-[var(--text-primary)] mb-5 flex items-center gap-2">
-              <Shield size={18} className="text-[var(--accent-primary)]" /> Preferences
+            <h3 className="text-base font-black text-[var(--text-primary)] mb-5 flex items-center gap-2 italic uppercase tracking-wider">
+              Preferences
             </h3>
             <div className="space-y-3">
               {/* Email Notifications Toggle */}
@@ -232,7 +243,7 @@ export default function Profile() {
                   <Shield size={18} className={twoFA ? 'text-emerald-400' : 'text-[var(--text-muted)]'} />
                   <div>
                     <p className="font-bold text-sm text-[var(--text-primary)]">Two-Factor Authentication</p>
-                    <p className="text-[10px] text-[var(--text-muted)] font-semibold">{twoFA ? '✅ Enabled — Your account is secure' : 'Adds an extra layer of security'}</p>
+                    <p className="text-[10px] text-[var(--text-muted)] font-semibold">{twoFA ? 'Enabled — Your account is secure' : 'Adds an extra layer of security'}</p>
                   </div>
                 </div>
                 <button

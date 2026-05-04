@@ -55,7 +55,7 @@ const StockCard = ({ stock, onClick, isSelected, isWatchlisted }) => {
   return (
     <div
       onClick={onClick}
-      className={`relative rounded-2xl cursor-pointer overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-xl ${isSelected ? 'ring-2 ring-[var(--accent-primary)] shadow-lg shadow-[var(--accent-glow)]' : ''} ${isWatched ? 'ring-1 ring-yellow-400/50' : ''}`}
+      className={`relative rounded-2xl cursor-pointer overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-xl ${isSelected ? 'ring-2 ring-[var(--accent-primary)] shadow-md' : ''} ${isWatched ? 'ring-1 ring-yellow-400/50' : ''}`}
       style={{
         background: isWatched
           ? 'linear-gradient(135deg, var(--card-bg), rgba(234,179,8,0.06))'

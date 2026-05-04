@@ -22,7 +22,7 @@
   
   --accent-primary: #4f46e5;
   --accent-secondary: #818cf8;
-  --accent-glow: rgba(79, 70, 229, 0.35);
+  --accent-glow: rgba(79, 70, 229, 0.15);
   
   --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -49,31 +49,67 @@ html.dark {
 html.theme-emerald {
   --accent-primary: #10b981;
   --accent-secondary: #34d399;
-  --accent-glow: rgba(16, 185, 129, 0.3);
+  --accent-glow: rgba(16, 185, 129, 0.15);
 }
 
 html.theme-violet {
   --accent-primary: #7c3aed;
   --accent-secondary: #a78bfa;
-  --accent-glow: rgba(124, 58, 237, 0.3);
+  --accent-glow: rgba(124, 58, 237, 0.15);
 }
 
 html.theme-cyan {
   --accent-primary: #0891b2;
   --accent-secondary: #22d3ee;
-  --accent-glow: rgba(8, 145, 178, 0.3);
+  --accent-glow: rgba(8, 145, 178, 0.15);
 }
 
 html.theme-rose {
   --accent-primary: #e11d48;
   --accent-secondary: #fb7185;
-  --accent-glow: rgba(225, 29, 72, 0.3);
+  --accent-glow: rgba(225, 29, 72, 0.15);
 }
 
 html.theme-ocean {
   --accent-primary: #0284c7;
   --accent-secondary: #38bdf8;
-  --accent-glow: rgba(2, 132, 199, 0.3);
+  --accent-glow: rgba(2, 132, 199, 0.15);
+}
+
+html.theme-amber {
+  --accent-primary: #f59e0b;
+  --accent-secondary: #fbbf24;
+  --accent-glow: rgba(245, 158, 11, 0.15);
+}
+
+html.theme-orange {
+  --accent-primary: #f97316;
+  --accent-secondary: #fb923c;
+  --accent-glow: rgba(249, 115, 22, 0.15);
+}
+
+html.theme-fuchsia {
+  --accent-primary: #d946ef;
+  --accent-secondary: #e879f9;
+  --accent-glow: rgba(217, 70, 239, 0.15);
+}
+
+html.theme-slate {
+  --accent-primary: #64748b;
+  --accent-secondary: #94a3b8;
+  --accent-glow: rgba(100, 116, 139, 0.15);
+}
+
+html.theme-teal {
+  --accent-primary: #14b8a6;
+  --accent-secondary: #2dd4bf;
+  --accent-glow: rgba(20, 184, 166, 0.15);
+}
+
+html.theme-lime {
+  --accent-primary: #84cc16;
+  --accent-secondary: #a3e635;
+  --accent-glow: rgba(132, 204, 22, 0.15);
 }
 
 /* Glassmorphism Utilities */
