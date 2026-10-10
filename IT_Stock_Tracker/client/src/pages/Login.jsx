@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Activity } from 'lucide-react';
+import { Activity, ShieldCheck } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, verifyOTP } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -18,13 +20,22 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      if (showOtp) {
+        await verifyOTP(email, otp);
+        navigate('/dashboard');
+      } else {
+        const data = await login(email, password);
+        if (data.requireOTP) {
+          setShowOtp(true);
+        } else {
+          navigate('/dashboard');
+        }
+      }
     } catch (err) {
       if (!err.response) {
         setError('Network Error - The backend server is offline.');
       } else {
-        setError(err.response.data?.message || 'Login failed. Please verify your credentials.');
+        setError(err.response.data?.message || 'Authentication failed. Please check your credentials.');
       }
     } finally {
       setLoading(false);
@@ -41,14 +52,14 @@ const Login = () => {
         <div>
           <div className="flex justify-center">
             <div className="bg-[var(--accent-primary)]/10 p-4 rounded-2xl shadow-inner border border-[var(--accent-primary)]/20">
-              <Activity className="h-10 w-10 text-[var(--accent-primary)]" />
+              {showOtp ? <ShieldCheck className="h-10 w-10 text-[var(--accent-primary)]" /> : <Activity className="h-10 w-10 text-[var(--accent-primary)]" />}
             </div>
           </div>
           <h2 className="mt-6 text-center text-3xl font-black text-[var(--text-primary)] tracking-tight">
-            Welcome Back
+            {showOtp ? 'Verify Identity' : 'Welcome Back'}
           </h2>
           <p className="mt-2 text-center text-sm font-medium text-[var(--text-secondary)]">
-            Sign in to access your portfolio and market trends.
+            {showOtp ? `Enter the 6-digit code sent to ${email}` : 'Sign in to access your portfolio and market trends.'}
           </p>
         </div>
 
@@ -59,39 +70,65 @@ const Login = () => {
             </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1" htmlFor="email">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none relative block w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-color)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent sm:text-sm transition-all"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+          {!showOtp ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1" htmlFor="email">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="appearance-none relative block w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-color)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent sm:text-sm transition-all"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
 
+              <div>
+                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1" htmlFor="password">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="appearance-none relative block w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-color)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent sm:text-sm transition-all"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+            </div>
+          ) : (
             <div>
-              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1" htmlFor="password">
-                Password
+              <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2 ml-1" htmlFor="otp">
+                Verification Code
               </label>
               <input
-                id="password"
-                name="password"
-                type="password"
+                id="otp"
+                name="otp"
+                type="text"
+                maxLength="6"
                 required
-                className="appearance-none relative block w-full px-4 py-3 bg-[var(--bg-base)] border border-[var(--border-color)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent sm:text-sm transition-all"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                className="appearance-none relative block w-full px-4 py-4 text-center text-2xl font-black tracking-[0.5em] bg-[var(--bg-base)] border border-[var(--border-color)] placeholder-[var(--text-muted)] text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] focus:border-transparent transition-all"
+                placeholder="000000"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
               />
+              <button 
+                type="button" 
+                onClick={() => setShowOtp(false)}
+                className="mt-4 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors"
+              >
+                ← Back to Login
+              </button>
             </div>
-          </div>
+          )}
 
           <div>
             <button
@@ -99,19 +136,21 @@ const Login = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-black rounded-xl text-white bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-primary)] transition-all shadow-lg shadow-[var(--accent-glow)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Authenticating...' : 'Sign In'}
+              {loading ? 'Processing...' : (showOtp ? 'Verify Code' : 'Sign In')}
             </button>
           </div>
         </form>
 
-        <div className="text-center mt-8">
-          <p className="text-sm font-medium text-[var(--text-secondary)]">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors">
-              Create one now
-            </Link>
-          </p>
-        </div>
+        {!showOtp && (
+          <div className="text-center mt-8">
+            <p className="text-sm font-medium text-[var(--text-secondary)]">
+              Don't have an account?{' '}
+              <Link to="/register" className="font-bold text-[var(--accent-primary)] hover:text-[var(--accent-secondary)] transition-colors">
+                Create one now
+              </Link>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

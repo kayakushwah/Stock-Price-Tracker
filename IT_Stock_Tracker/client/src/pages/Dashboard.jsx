@@ -18,15 +18,6 @@ const IT_STOCKS_SYMBOLS = [
   'LTIM.BSE', 'PERSISTENT.BSE', 'MPHASIS.BSE', 'KPITTECH.BSE'
 ];
 
-const MOCK_PORTFOLIO = {
-  investedValue: 524800,
-  currentValue: 591342,
-  dayPnL: 3847,
-  dayPnLPct: 0.65,
-  totalPnL: 66542,
-  totalPnLPct: 12.68,
-};
-
 const StatCard = ({ label, value, sub, up, tip, align }) => (
   <div className="glass-card rounded-2xl p-4 relative overflow-hidden group transition-all hover:scale-[1.02]">
     <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[var(--accent-glow)] opacity-0 group-hover:opacity-10 transition-opacity" />
@@ -96,6 +87,7 @@ export default function Dashboard() {
   }, [fetchStocks]);
 
   const watchedSymbols = user?.watchlist ?? [];
+  const heldSymbols = user?.holdings?.map(h => h.symbol) ?? [];
   const topGainer = [...stocks].filter(s => !s.error && s.changePercent > 0).sort((a, b) => b.changePercent - a.changePercent)[0];
   const topLoser = [...stocks].filter(s => !s.error && s.changePercent < 0).sort((a, b) => a.changePercent - b.changePercent)[0];
 
@@ -108,7 +100,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 fade-in-up pb-8 max-w-7xl mx-auto">
-      {/* ── Portfolio Header ─────────────────────────────── */}
+      {/* ── Portfolio Header (Awesome Dashboard) ────────────────────── */}
       <div className="rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl"
         style={{ background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)' }}
       >
@@ -119,38 +111,38 @@ export default function Dashboard() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Cpu size={16} className="text-white/70" />
-              <span className="text-white/70 text-sm font-semibold">IT Stock Tracker</span>
+              <span className="text-white/70 text-sm font-semibold italic">Market Intelligence Engine</span>
             </div>
             <p className="text-white/80 text-sm font-medium mb-1">
               {greeting()}, <span className="font-black text-white">{user?.email?.split('@')[0]}</span> 👋
             </p>
-            <h1 className="text-4xl sm:text-5xl font-black tracking-tighter drop-shadow-sm mb-1">
-              ₹{MOCK_PORTFOLIO.currentValue.toLocaleString('en-IN')}
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tighter drop-shadow-sm mb-1 italic uppercase">
+              Portfolio Snapshot
             </h1>
             <p className="text-white/70 text-[11px] font-bold tracking-widest uppercase flex items-center gap-2">
-              Demo Portfolio Value <HelpTip topic="market_cap" />
+              Real-time Asset Monitoring <HelpTip topic="it_stocks" />
             </p>
           </div>
 
-          <div className="flex gap-6 bg-black/20 p-4 rounded-2xl backdrop-blur-md border border-white/10">
-            <div>
-              <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
-                Demo P&L <HelpTip topic="p_l" align="left" />
+          <div className="flex gap-6 bg-black/20 p-5 rounded-2xl backdrop-blur-md border border-white/10 shadow-inner">
+            <div className="text-center md:text-left">
+              <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1 flex items-center gap-1 justify-center md:justify-start">
+                Holdings <HelpTip topic="invested" align="left" />
               </p>
-              <p className="text-xl font-black text-emerald-300 flex items-center gap-1">
-                <ArrowUpRight size={16} />+₹{MOCK_PORTFOLIO.dayPnL.toLocaleString('en-IN')}
+              <p className="text-3xl font-black text-white tracking-tighter">
+                {heldSymbols.length}
               </p>
-              <p className="text-emerald-300/70 text-xs font-bold">+{MOCK_PORTFOLIO.dayPnLPct.toFixed(2)}%</p>
+              <p className="text-white/40 text-[10px] font-bold uppercase tracking-tighter">Active Stocks</p>
             </div>
             <div className="w-px bg-white/10" />
-            <div>
-              <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
-                Total Returns <HelpTip topic="total_returns" align="left" />
+            <div className="text-center md:text-left">
+              <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest mb-1 flex items-center gap-1 justify-center md:justify-start">
+                Watchlist <HelpTip topic="watchlist" align="left" />
               </p>
-              <p className="text-xl font-black text-emerald-300 flex items-center gap-1">
-                <ArrowUpRight size={16} />+₹{MOCK_PORTFOLIO.totalPnL.toLocaleString('en-IN')}
+              <p className="text-3xl font-black text-white tracking-tighter">
+                {watchedSymbols.length}
               </p>
-              <p className="text-emerald-300/70 text-xs font-bold">+{MOCK_PORTFOLIO.totalPnLPct.toFixed(2)}%</p>
+              <p className="text-white/40 text-[10px] font-bold uppercase tracking-tighter">Tracked Items</p>
             </div>
           </div>
         </div>
@@ -158,8 +150,8 @@ export default function Dashboard() {
 
       {/* ── Quick Stats ────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="IT STOCKS" value={stocks.length} sub={`${stocks.filter(s => !s.error).length} Active Leaders`} up={true} tip="it_stocks" />
-        <StatCard label="INVESTED" value={`₹${MOCK_PORTFOLIO.investedValue.toLocaleString('en-IN')}`} tip="invested" />
+        <StatCard label="TRACKED STOCKS" value={stocks.length} sub="Industry Leaders" up={true} tip="it_stocks" />
+        <StatCard label="MARKET CAP" value="₹14.2T" sub="Sector Agg." up={true} tip="market_cap" />
         <StatCard label="TOP GAINER" value={topGainer?.symbol ?? 'N/A'} sub={topGainer ? `+${topGainer.changePercent.toFixed(2)}%` : ''} up={true} tip="top_gainers" align="left" />
         <StatCard label="TOP LOSER" value={topLoser?.symbol ?? 'N/A'} sub={topLoser ? `${topLoser.changePercent.toFixed(2)}%` : ''} up={false} tip="top_losers" align="left" />
       </div>

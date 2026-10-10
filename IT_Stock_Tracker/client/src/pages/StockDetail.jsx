@@ -1,31 +1,34 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  BarChart, Bar
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 import { useAuth } from '../hooks/useAuth';
 import api from '../api/axios';
 import HelpTip from '../components/HelpTip';
 import {
-  ArrowLeft, Star, TrendingUp, TrendingDown, AlertCircle, RefreshCw, BarChart2, ThumbsUp, ThumbsDown, Activity
+  ArrowLeft, Star, TrendingUp, TrendingDown, AlertCircle, RefreshCw, BarChart2, ThumbsUp, ThumbsDown, Activity, Briefcase
 } from 'lucide-react';
+import { trackStockSearch, trackSearchError } from '../lib/analytics';
 
 export default function StockDetail() {
   const { symbol } = useParams();
   const navigate = useNavigate();
-  const { user, updateWatchlist } = useAuth();
+  const { user, setUser, updateWatchlist } = useAuth();
   
   const [stock, setStock] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [period, setPeriod] = useState('1M');
+  const [isTogglingHolding, setIsTogglingHolding] = useState(false);
   
   const isWatched = user?.watchlist?.includes(symbol);
+  const isHeld = user?.holdings?.some(h => h.symbol === symbol);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
       const [quoteRes, historyRes] = await Promise.all([
         api.get(`/stocks/${symbol}`),
@@ -33,8 +36,29 @@ export default function StockDetail() {
       ]);
       setStock(quoteRes.data);
       setHistory(historyRes.data.history);
+      // 🔥 GA4: fire stock_search when a stock detail loads successfully
+      trackStockSearch(symbol);
     } catch (err) {
-      setError('Failed to fetch stock data');
+      // Detect error type for GA4 tracking + friendly message
+      const msg = err?.response?.data?.message || err?.message || '';
+      const isRateLimit = msg.toLowerCase().includes('rate') ||
+        msg.toLowerCase().includes('limit') ||
+        msg.toLowerCase().includes('information');
+      const isNotFound = err?.response?.status === 404 ||
+        msg.toLowerCase().includes('not found') ||
+        msg.toLowerCase().includes('empty') ||
+        msg.toLowerCase().includes('invalid');
+
+      if (isRateLimit) {
+        trackSearchError('rate_limit');
+        setError('API rate limit reached. Data may be simulated. Try again in a minute.');
+      } else if (isNotFound) {
+        trackSearchError('invalid_symbol');
+        setError(`Symbol "${symbol}" not found. Please check the ticker and try again.`);
+      } else {
+        trackSearchError('network_error');
+        setError('Failed to fetch stock data. Please check your connection.');
+      }
     } finally {
       setLoading(false);
     }
@@ -48,6 +72,34 @@ export default function StockDetail() {
       updateWatchlist(res.data.watchlist);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const toggleHolding = async () => {
+    if (isTogglingHolding) return;
+    setIsTogglingHolding(true);
+    try {
+      if (isHeld) {
+        const res = await api.delete(`/auth/holdings/${symbol}`);
+        const updatedUser = { ...user, holdings: res.data.holdings || [] };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      } else {
+        const res = await api.post('/auth/holdings', {
+          symbol: stock.symbol,
+          companyName: stock.symbol,
+          qty: 0,
+          avgPrice: stock.price
+        });
+        const updatedUser = { ...user, holdings: res.data.holdings || [] };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    } catch (err) {
+      console.error('Error toggling holding:', err);
+      alert('Failed to update holdings. Please check your connection.');
+    } finally {
+      setIsTogglingHolding(false);
     }
   };
 
@@ -75,7 +127,6 @@ export default function StockDetail() {
   const isUp = stock.changePercent >= 0;
   const priceColor = isUp ? 'var(--up-color)' : 'var(--down-color)';
 
-  // Generate static pseudo-random Pros/Cons based on symbol name to make it fun but static
   const getProsCons = (sym) => {
     const pros = [
       "Consistent historical dividend payouts.",
@@ -100,8 +151,8 @@ export default function StockDetail() {
 
   return (
     <div className="space-y-6 fade-in-up pb-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="glass-card rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden group">
+      {/* Header Card */}
+      <div className="glass-card rounded-3xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden group border border-[var(--border-color)]">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[var(--accent-glow)] to-transparent opacity-0 group-hover:opacity-10 transition-opacity -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] duration-1000" />
         
         <div className="flex items-start gap-4 relative z-10">
@@ -124,13 +175,23 @@ export default function StockDetail() {
             <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: priceColor }}>
               ₹{stock.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
             </h2>
-            <button
-              onClick={toggleWatchlist}
-              className={`p-3 rounded-full transition-all ${isWatched ? 'bg-yellow-500/20 text-yellow-500' : 'glass-card text-[var(--text-secondary)] hover:text-[var(--accent-primary)]'}`}
-              title={isWatched ? "Remove from Watchlist" : "Add to Watchlist"}
-            >
-              <Star size={24} className={isWatched ? 'fill-current' : ''} />
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={toggleHolding}
+                disabled={isTogglingHolding}
+                className={`p-3 rounded-full transition-all ${isHeld ? 'bg-[var(--accent-primary)] text-white shadow-lg' : 'glass-card text-[var(--text-secondary)] hover:text-[var(--accent-primary)]'} ${isTogglingHolding ? 'opacity-50 cursor-wait' : ''}`}
+                title={isHeld ? "Un-hold Stock" : "Hold Stock"}
+              >
+                {isTogglingHolding ? <RefreshCw size={24} className="animate-spin" /> : <Briefcase size={24} className={isHeld ? 'fill-current' : ''} />}
+              </button>
+              <button
+                onClick={toggleWatchlist}
+                className={`p-3 rounded-full transition-all ${isWatched ? 'bg-yellow-500/20 text-yellow-500' : 'glass-card text-[var(--text-secondary)] hover:text-[var(--accent-primary)]'}`}
+                title={isWatched ? "Remove from Watchlist" : "Add to Watchlist"}
+              >
+                <Star size={24} className={isWatched ? 'fill-current' : ''} />
+              </button>
+            </div>
           </div>
           <p className={`text-sm font-bold flex items-center gap-1 ${isUp ? 'text-profit' : 'text-loss'}`}>
             {isUp ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
@@ -140,9 +201,8 @@ export default function StockDetail() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        
         {/* Main Chart Section */}
-        <div className="xl:col-span-2 glass-card rounded-3xl p-6">
+        <div className="xl:col-span-2 glass-card rounded-3xl p-6 border border-[var(--border-color)]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div className="flex items-center gap-2 text-[var(--text-primary)]">
               <Activity size={20} className="text-[var(--accent-primary)]" />
@@ -164,35 +224,30 @@ export default function StockDetail() {
           </div>
 
           <div className="h-[350px] w-full">
-            {loading ? (
-              <div className="w-full h-full rounded-2xl shimmer" />
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={history} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={priceColor} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={priceColor} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.5} />
-                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: 600 }} minTickGap={20} />
-                  <YAxis domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: 600 }} tickFormatter={v => `₹${v}`} />
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: 'var(--card-bg)', backdropFilter: 'blur(10px)', borderRadius: '12px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                    itemStyle={{ color: priceColor, fontWeight: 'bold' }}
-                  />
-                  <Area type="monotone" dataKey="close" stroke={priceColor} strokeWidth={3} fillOpacity={1} fill="url(#colorPrice)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={history} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={priceColor} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={priceColor} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" opacity={0.5} />
+                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: 600 }} minTickGap={20} />
+                <YAxis domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: 600 }} tickFormatter={v => `₹${v}`} />
+                <RechartsTooltip 
+                  contentStyle={{ backgroundColor: 'var(--card-bg)', backdropFilter: 'blur(10px)', borderRadius: '12px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                  itemStyle={{ color: priceColor, fontWeight: 'bold' }}
+                />
+                <Area type="monotone" dataKey="close" stroke={priceColor} strokeWidth={3} fillOpacity={1} fill="url(#colorPrice)" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
         {/* Sidebar Info */}
         <div className="space-y-6">
-          {/* Key Metrics */}
-          <div className="glass-card rounded-3xl p-6">
+          <div className="glass-card rounded-3xl p-6 border border-[var(--border-color)]">
             <h3 className="font-bold text-[var(--text-primary)] mb-5 flex items-center gap-2">
               <BarChart2 size={18} className="text-[var(--accent-primary)]" /> Market Data
             </h3>
@@ -216,8 +271,7 @@ export default function StockDetail() {
             </div>
           </div>
 
-          {/* Beginner Insights (Pros/Cons) */}
-          <div className="glass-card rounded-3xl p-6 bg-gradient-to-b from-[var(--card-bg)] to-[var(--bg-main)]">
+          <div className="glass-card rounded-3xl p-6 bg-gradient-to-b from-[var(--card-bg)] to-[var(--bg-main)] border border-[var(--border-color)]">
             <h3 className="font-black text-lg text-[var(--text-primary)] tracking-tight mb-1 flex items-center gap-2">
               Beginner Insights
             </h3>
@@ -237,7 +291,7 @@ export default function StockDetail() {
               <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-1 rounded-md bg-rose-500 text-white"><ThumbsDown size={14} /></div>
-                  <span className="font-bold text-rose-600 dark:text-rose-400 text-sm">What to watch out for</span>
+                  <span className="font-bold text-rose-600 dark:text-rose-400 text-sm">Watch out for</span>
                 </div>
                 <p className="text-xs text-rose-700 dark:text-rose-300/80 leading-relaxed font-medium">
                   {con}

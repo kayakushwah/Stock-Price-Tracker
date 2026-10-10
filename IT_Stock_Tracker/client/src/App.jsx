@@ -9,6 +9,7 @@ import MarketTrend from './pages/MarketTrend';
 import Profile from './pages/Profile';
 import Landing from './pages/Landing';
 import StockDetail from './pages/StockDetail';
+import Holdings from './pages/Holdings';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/watchlist" element={<Watchlist />} />
+            <Route path="/holdings" element={<Holdings />} />
             <Route path="/market" element={<MarketTrend />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/stock/:symbol" element={<StockDetail />} />

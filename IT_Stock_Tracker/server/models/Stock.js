@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const StockHistorySchema = new mongoose.Schema({
   symbol: {
@@ -28,4 +28,5 @@ const StockHistorySchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('StockHistory', StockHistorySchema);
+const StockHistory = mongoose.model('StockHistory', StockHistorySchema);
+export default StockHistory;

@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LineChart, Menu, X, TrendingUp, Activity, Star, Search, Loader, ChevronRight } from 'lucide-react';
+import { LineChart, Menu, X, TrendingUp, Activity, Star, Search, Loader, ChevronRight, Briefcase, AlertCircle } from 'lucide-react';
 import api from '../api/axios';
+import { trackStockSearch, trackSearchError } from '../lib/analytics';
 
 // Map of avatar IDs to their sticker image paths
 const AVATAR_MAP = {
@@ -42,6 +43,7 @@ const Sidebar = () => {
     { to: '/dashboard', label: 'Dashboard', icon: LineChart },
     { to: '/market', label: 'Market Trends', icon: Activity },
     { to: '/watchlist', label: 'Watchlist', icon: Star },
+    { to: '/holdings', label: 'Holdings', icon: Briefcase },
   ];
 
   return (
@@ -142,18 +144,40 @@ function SearchBox({ onClose }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState(''); // friendly error message
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    if (query.trim().length === 0) { setResults([]); return; }
+    if (query.trim().length === 0) { setResults([]); setSearchError(''); return; }
     setLoading(true);
+    setSearchError('');
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
         const res = await api.get(`/stocks/search?q=${query}`);
-        setResults(res.data);
+        const data = res.data ?? [];
+
+        // If the backend signals a rate-limit (it still returns fallback results but flags it)
+        if (data.length === 0) {
+          trackSearchError('invalid_symbol');
+          setSearchError('Symbol not found. Try a different ticker.');
+        }
+        setResults(data);
       } catch (err) {
         console.error('Search error:', err);
+        // Detect error type from response or message
+        const msg = err?.response?.data?.message || err?.message || '';
+        const isRateLimit = msg.toLowerCase().includes('rate') ||
+          msg.toLowerCase().includes('limit') ||
+          msg.toLowerCase().includes('information');
+        const errorType = isRateLimit ? 'rate_limit' : 'network_error';
+        trackSearchError(errorType);
+        setSearchError(
+          isRateLimit
+            ? 'API limit reached. Try again in a minute.'
+            : 'Search failed. Check your connection.'
+        );
+        setResults([]);
       } finally {
         setLoading(false);
       }
@@ -179,18 +203,32 @@ function SearchBox({ onClose }) {
               className="bg-transparent text-xs text-white placeholder-slate-500 outline-none flex-1" />
             {query && <button onClick={() => setQuery('')} className="text-slate-500 hover:text-white text-xs">✕</button>}
           </div>
+          {/* Friendly error banner */}
+          {searchError && (
+            <div className="flex items-center gap-2 px-3 py-2 border-b text-rose-400" style={{ borderColor: 'var(--sidebar-border)', background: 'rgba(239,68,68,0.08)' }}>
+              <AlertCircle size={11} className="flex-shrink-0" />
+              <p className="text-[10px] font-semibold">{searchError}</p>
+            </div>
+          )}
           <div className="max-h-48 overflow-y-auto">
             {loading ? (
               <p className="text-center text-slate-500 text-xs py-4 flex items-center justify-center gap-2">
                 <Loader size={12} className="animate-spin" /> Searching...
               </p>
-            ) : results.length === 0 && query.trim().length > 0 ? (
+            ) : results.length === 0 && query.trim().length > 0 && !searchError ? (
               <p className="text-center text-slate-500 text-xs py-4">No results found</p>
-            ) : results.length === 0 ? (
+            ) : results.length === 0 && !searchError ? (
               <p className="text-center text-slate-500 text-xs py-4">Search global stocks…</p>
             ) : results.map(s => (
-              <NavLink key={s.symbol} to={`/stock/${s.symbol}`} onClick={onClose}
-                className="flex items-center justify-between px-3 py-2.5 hover:bg-white/5 transition-colors group">
+              <NavLink
+                key={s.symbol}
+                to={`/stock/${s.symbol}`}
+                onClick={() => {
+                  trackStockSearch(s.symbol); // 🔥 GA4 stock_search event
+                  onClose();
+                }}
+                className="flex items-center justify-between px-3 py-2.5 hover:bg-white/5 transition-colors group"
+              >
                 <div>
                   <p className="text-xs font-black text-white">{s.symbol}</p>
                   <p className="text-[10px] text-slate-500">{s.name}</p>

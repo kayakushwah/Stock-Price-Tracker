@@ -1,6 +1,6 @@
-const axios = require('axios');
-const StockHistory = require('../models/Stock');
-const User = require('../models/User');
+import axios from 'axios';
+import StockHistory from '../models/Stock.js';
+import User from '../models/User.js';
 
 const IT_STOCKS = ['TCS.BSE', 'INFY.BSE', 'WIPRO.BSE', 'HCLTECH.BSE', 'TECHM.BSE'];
 
@@ -83,7 +83,7 @@ const fetchAlphaVantage = async (symbol) => {
   };
 };
 
-const getStocks = async (req, res) => {
+export const getStocks = async (req, res) => {
   try {
     const results = [];
     const symbolsToFetch = req.query.symbols ? req.query.symbols.split(',') : IT_STOCKS;
@@ -91,7 +91,6 @@ const getStocks = async (req, res) => {
     for (const symbol of symbolsToFetch) {
       const cachedData = await StockHistory.findOne({ symbol });
       
-      // SMART POLLING: Check DB first. If fresh (< 1 hr), skip API to save rate limits
       if (cachedData && (Date.now() - cachedData.lastUpdated < 3600000)) {
         const drift = (Math.random() - 0.5) * 0.002;
         const livePrice = parseFloat((cachedData.price * (1 + drift)).toFixed(2));
@@ -147,7 +146,7 @@ const getStocks = async (req, res) => {
   }
 };
 
-const searchStocks = async (req, res) => {
+export const searchStocks = async (req, res) => {
   try {
     const { q } = req.query;
     if (!q) return res.status(400).json({ message: 'Query is required' });
@@ -189,7 +188,7 @@ const searchStocks = async (req, res) => {
   }
 };
 
-const getSingleStock = async (req, res) => {
+export const getSingleStock = async (req, res) => {
   try {
     const { symbol } = req.params;
     let liveData;
@@ -227,7 +226,6 @@ const getSingleStock = async (req, res) => {
       }
     }
     
-    // Add micro drift to make charts/details feel alive even if cached
     const drift = (Math.random() - 0.5) * 0.002;
     liveData.price = parseFloat((liveData.price * (1 + drift)).toFixed(2));
     
@@ -238,7 +236,7 @@ const getSingleStock = async (req, res) => {
   }
 };
 
-const toggleWatchlist = async (req, res) => {
+export const toggleWatchlist = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
     const { symbol } = req.body;
@@ -257,7 +255,7 @@ const toggleWatchlist = async (req, res) => {
   }
 };
 
-const getStockHistory = async (req, res) => {
+export const getStockHistory = async (req, res) => {
   try {
     const { symbol } = req.params;
     const { period = '1M' } = req.query;
@@ -329,15 +327,6 @@ const getStockHistory = async (req, res) => {
   }
 };
 
-const getSectors = async (req, res) => {
+export const getSectors = async (req, res) => {
   res.json(SECTORS_DATA);
-};
-
-module.exports = {
-  getStocks,
-  searchStocks,
-  getSingleStock,
-  toggleWatchlist,
-  getStockHistory,
-  getSectors
 };

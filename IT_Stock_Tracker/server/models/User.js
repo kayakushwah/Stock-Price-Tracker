@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const UserSchema = new mongoose.Schema({
   email: {
@@ -25,6 +25,7 @@ const UserSchema = new mongoose.Schema({
   city: { type: String, default: '' },
   bio: { type: String, default: 'IT sector investor' },
   avatarColor: { type: String, default: '#6366f1' },
+  
   // Portfolio holdings
   holdings: {
     type: [{
@@ -33,6 +34,7 @@ const UserSchema = new mongoose.Schema({
       qty: Number,
       avgPrice: Number,
       purchaseDate: String,
+      alertPrice: Number,
     }],
     default: []
   },
@@ -40,12 +42,17 @@ const UserSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  
+  // 2FA Fields
+  isTwoFactorEnabled: { type: Boolean, default: false },
+  otp: { type: String },
+  otpExpires: { type: Date },
+
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
-
 
 // Encrypt password using bcrypt
 UserSchema.pre('save', async function() {
@@ -62,4 +69,5 @@ UserSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+const User = mongoose.model('User', UserSchema);
+export default User;

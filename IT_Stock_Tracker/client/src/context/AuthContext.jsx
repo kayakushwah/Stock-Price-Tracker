@@ -13,8 +13,27 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
+    // If 2FA is not required, log the user in immediately
+    if (response.data && !response.data.requireOTP) {
+      const data = { 
+        ...response.data, 
+        watchlist: response.data.watchlist || [],
+        holdings: response.data.holdings || []
+      };
+      localStorage.setItem('user', JSON.stringify(data));
+      setUser(data);
+    }
+    return response.data;
+  };
+
+  const verifyOTP = async (email, otp) => {
+    const response = await api.post('/auth/verify-otp', { email, otp });
     if (response.data) {
-      const data = { ...response.data, watchlist: response.data.watchlist || [] };
+      const data = { 
+        ...response.data, 
+        watchlist: response.data.watchlist || [],
+        holdings: response.data.holdings || []
+      };
       localStorage.setItem('user', JSON.stringify(data));
       setUser(data);
     }
@@ -24,7 +43,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password) => {
     const response = await api.post('/auth/register', { email, password });
     if (response.data) {
-      const data = { ...response.data, watchlist: response.data.watchlist || [] };
+      const data = { 
+        ...response.data, 
+        watchlist: response.data.watchlist || [],
+        holdings: response.data.holdings || []
+      };
       localStorage.setItem('user', JSON.stringify(data));
       setUser(data);
     }
@@ -45,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, register, logout, updateWatchlist, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, verifyOTP, register, logout, updateWatchlist, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );
