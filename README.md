@@ -1,149 +1,14 @@
-# 📈 IT Stock Tracker
+# 📈 Stock Price Tracker
 
-A full-stack real-time stock market dashboard focused on the **Indian IT sector** — built with React, Node.js, MongoDB, and Alpha Vantage. Includes complete **GA4 + GTM** event analytics to track user behaviour at the ticker level.
+A clean, beginner-friendly full-stack web application to search for stocks, view historical price charts, and manage your personal portfolio. Built with React, Node.js, and MongoDB, this project integrates real-world **Google Analytics 4 (GA4)** and **Google Tag Manager (GTM)** tracking.
 
-> Built as part of the Tatvic Analytics internship assessment.
+> 💡 **Beginner Friendly:** This project is designed to be simple to set up and explore. It serves as a great example of integrating frontend analytics (GA4/GTM) with a full-stack web application!
 
 ---
 
 ## 🖥️ App Screenshots
 
-> _(Add your screenshots here after taking them — see the Testing section below)_
-
-| Dashboard | Stock Detail | Market Trends |
-|-----------|-------------|---------------|
-| `dashboard.png` | `stock_detail.png` | `market_trends.png` |
-
----
-
-## ✨ Features
-
-- 🔴 **Real-time prices** for top 9 IT stocks (TCS, Infosys, Wipro, HCL, and more)
-- 📊 **Interactive charts** — 1D / 1W / 1M / 3M / 1Y price history
-- ⭐ **Watchlist** — pin stocks for side-by-side chart comparison
-- 💼 **Holdings tracker** — manage your portfolio
-- 🌐 **Market Trends** — sector heatmap, breadth indicators, fear/greed index
-- 🔍 **Global search** — search any symbol via Alpha Vantage API
-- 🌙 Dark mode glassmorphism UI
-- 📬 **Price alert emails** via Nodemailer
-- 📡 **GA4 + GTM event tracking** (stock searches, error types)
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18, Vite, Vanilla CSS |
-| Backend | Node.js, Express |
-| Database | MongoDB Atlas (Mongoose) |
-| Stock Data | Alpha Vantage REST API |
-| Auth | JWT + bcrypt |
-| Email | Nodemailer (Gmail SMTP) |
-| Analytics | Google Analytics 4 (G-YJ2WZ9FXKK) via GTM (GTM-P4N9GSR2) |
-| Deployment | Render (backend) + Vercel (frontend) |
-
----
-
-## ⚡ Quick Start
-
-### Prerequisites
-- Node.js >= 18
-- MongoDB Atlas account (free tier works)
-- Alpha Vantage API key — get one free at https://www.alphavantage.co/support/#api-key
-
-### 1. Clone & install
-
-```bash
-git clone https://github.com/kayakushwah/Stock-Price-Tracker.git
-cd Stock-Price-Tracker/IT_Stock_Tracker
-
-# Install server deps
-cd server && npm install
-
-# Install client deps
-cd ../client && npm install
-```
-
-### 2. Configure environment variables
-
-**`server/.env`** (never commit this file):
-```env
-PORT=5001
-MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/StockPriceTracker
-JWT_SECRET=your_strong_jwt_secret
-ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key
-EMAIL_SERVICE=gmail
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
-NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
-```
-
-> WARNING: Never add ALPHA_VANTAGE_API_KEY to the client .env or prefix it with VITE_ — it would be bundled into the public JavaScript.
-
-### 3. Run locally
-
-```bash
-# Terminal 1 — backend
-cd server && npm start        # runs on :5001
-
-# Terminal 2 — frontend
-cd client && npm run dev      # runs on :5173
-```
-
-Open http://localhost:5173
-
----
-
-## 📡 Analytics — GA4 + GTM
-
-### Tracking Plan
-
-| Event | Parameters | When it fires |
-|-------|-----------|---------------|
-| `stock_search` | `ticker` | User clicks a search result or navigates to a stock detail page |
-| `search_error` | `error_type` | Search or stock fetch fails |
-
-#### `error_type` values
-
-| Value | Meaning |
-|-------|---------|
-| `rate_limit` | Alpha Vantage API quota exceeded (free tier = 25 calls/day) |
-| `invalid_symbol` | Symbol not found / empty quote returned |
-| `network_error` | Unexpected network or server failure |
-
-### How events flow
-
-```
-User clicks search result
-        |
-        v
-Sidebar.jsx -> trackStockSearch(symbol)
-        |
-        v
-window.dataLayer.push({ event: 'stock_search', ticker: 'AAPL' })
-        |
-        v
-GTM Container (GTM-P4N9GSR2) picks it up
-        |
-        v
-GA4 Event Tag fires -> GA4 Property (G-YJ2WZ9FXKK)
-```
-
-### GTM Setup Reference
-
-| Item | Name | Type | Config |
-|------|------|------|--------|
-| Variable | `DLV - ticker` | Data Layer Variable | `ticker` |
-| Variable | `DLV - error_type` | Data Layer Variable | `error_type` |
-| Trigger | `CE - stock_search` | Custom Event | Event name: `stock_search` |
-| Trigger | `CE - search_error` | Custom Event | Event name: `search_error` |
-| Tag | `GA4 Config` | Google Tag | Measurement ID: `G-YJ2WZ9FXKK`, Trigger: Initialization – All Pages |
-| Tag | `GA4 - stock_search` | GA4 Event | Event: `stock_search`, Param `ticker` = `{{DLV - ticker}}` |
-| Tag | `GA4 - search_error` | GA4 Event | Event: `search_error`, Param `error_type` = `{{DLV - error_type}}` |
-
-### GA4 + GTM Screenshots
+### GA4 + GTM Analytics Proof
 
 **1. GTM Tag Firing (Tag Assistant)**
 ![GTM Fired](./gtm_fired.png)
@@ -153,56 +18,118 @@ GA4 Event Tag fires -> GA4 Property (G-YJ2WZ9FXKK)
 
 ---
 
-## 🚀 Deployment (Render)
+## ✨ Features
 
-### Backend (Render Web Service)
-
-1. Go to render.com -> New -> Web Service
-2. Connect your GitHub repo, set Root Directory to `IT_Stock_Tracker/server`
-3. Build command: `npm install`
-4. Start command: `node server.js`
-5. Add Environment Variables in the Render dashboard (same as server/.env)
-6. Copy the live URL (e.g. https://it-stock-tracker-api.onrender.com)
-
-### Frontend (Vercel)
-
-1. Go to vercel.com -> Import repo
-2. Set Root Directory to `IT_Stock_Tracker/client`
-3. Update `vite.config.js` proxy target to the Render URL for production
+- 🔍 **Global Stock Search:** Search for any stock ticker (e.g., `AAPL`, `MSFT`) powered by the Alpha Vantage API.
+- 📊 **Interactive Charts:** Visualize stock price history clearly on the stock detail page.
+- 🔐 **User Authentication:** Secure account creation and login using JSON Web Tokens (JWT).
+- ⭐ **Personal Watchlist:** Save your favorite stocks to keep a close eye on their performance.
+- 💼 **Holdings Tracker:** Simulate buying stocks and track your personal portfolio.
+- 📡 **Professional Analytics:** Fully integrated GA4 and GTM event tracking for user interactions and API errors.
+- 🛡️ **Graceful Error Handling:** Custom UI messages when API limits are hit or invalid symbols are searched.
 
 ---
 
-## 🔐 Security Notes
+## 🛠️ Tech Stack
 
-- `ALPHA_VANTAGE_API_KEY` lives **only** in `server/.env` — never exposed to the browser
-- Both `.env` files are in `.gitignore` at root and client level
-- JWT tokens expire and are cleared from `localStorage` on 401
-- CORS origin list is explicit — wildcard `*` is not used
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, Vite, Tailwind CSS |
+| **Backend** | Node.js, Express.js |
+| **Database** | MongoDB Atlas (Mongoose) |
+| **Stock Data** | Alpha Vantage REST API |
+| **Analytics** | Google Analytics 4 via Google Tag Manager |
 
 ---
 
-## 📁 Project Structure
+## ⚡ Quick Start Guide
 
+### Prerequisites
+- Node.js installed on your computer
+- A free MongoDB Atlas account
+- A free Alpha Vantage API key (Get one at [alphavantage.co](https://www.alphavantage.co/support/#api-key))
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/kayakushwah/Stock-Price-Tracker.git
+cd Stock-Price-Tracker/IT_Stock_Tracker
+
+# Install backend dependencies
+cd server && npm install
+
+# Install frontend dependencies
+cd ../client && npm install
 ```
-IT_Stock_Tracker/
-├── client/                  # React + Vite frontend
-│   ├── src/
-│   │   ├── components/      # Sidebar (search + events), StockCard, etc.
-│   │   ├── pages/           # Dashboard, StockDetail, Watchlist, etc.
-│   │   ├── lib/
-│   │   │   └── analytics.js # GTM dataLayer helper
-│   │   └── api/axios.js     # Axios instance with JWT interceptors
-│   └── index.html           # GTM snippets injected here
-└── server/                  # Express backend
-    ├── controllers/
-    │   └── stockController.js # Alpha Vantage integration + error typing
-    ├── routes/stockRoutes.js
-    ├── models/
-    └── server.js
+
+### 2. Configure Environment Variables
+
+Create a `.env` file in the `server` folder (`server/.env`) and add the following:
+
+```env
+PORT=5001
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key
 ```
+
+> 💡 **Security Tip:** Never commit your `.env` file to GitHub. The `.gitignore` is already configured to protect it!
+
+### 3. Run the App Locally
+
+Open two separate terminal windows:
+
+```bash
+# Terminal 1 — Start the Backend
+cd server
+npm start
+```
+
+```bash
+# Terminal 2 — Start the Frontend
+cd client
+npm run dev
+```
+
+Visit `http://localhost:5173` in your browser to see the app running!
+
+---
+
+## 📡 Analytics Tracking Plan
+
+This project demonstrates professional analytics integration. Here is the tracking plan implemented via GTM:
+
+| Event Name | Parameter | When it fires |
+|-------|-----------|---------------|
+| `stock_search` | `ticker` (e.g., AAPL) | When a user clicks on a search result or views a stock page. |
+| `search_error` | `error_type` | When a search fails due to bad input or API limits. |
+
+### `error_type` definitions:
+- **`rate_limit`:** The Alpha Vantage API limit was reached.
+- **`invalid_symbol`:** The user searched for a stock that doesn't exist.
+- **`network_error`:** A general connection failure occurred.
+
+---
+
+## 🚀 Deployment
+
+You can easily deploy this app for free:
+
+### 1. Backend (Render)
+- Go to **Render.com** and create a new **Web Service**.
+- Connect this GitHub repository.
+- Set the Root Directory to `IT_Stock_Tracker/server`.
+- Add your Environment Variables (`MONGO_URI`, `ALPHA_VANTAGE_API_KEY`, `JWT_SECRET`).
+- Click Deploy!
+
+### 2. Frontend (Vercel)
+- Go to **Vercel.com** and import this repository.
+- Set the Root Directory to `IT_Stock_Tracker/client`.
+- Update the API base URL in your frontend code to point to your new Render backend URL.
+- Deploy!
 
 ---
 
 ## 📜 License
 
-MIT
+This project is open-source and available under the MIT License.
